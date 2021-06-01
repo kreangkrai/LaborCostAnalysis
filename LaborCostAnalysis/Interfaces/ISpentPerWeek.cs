@@ -12,3 +12,4 @@ namespace LaborCostAnalysis.Interfaces
         List<SpentPerWeekModel> GetSpentPerWeeksByJob(string job_id);
     }
 }
+ddd
