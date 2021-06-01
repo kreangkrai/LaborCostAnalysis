@@ -1,0 +1,636 @@
+﻿<!-- Project View Index -->
+@{
+    ViewData["Title"] = "Job View";
+}
+
+<div id="div_container" class="container-fluid" style="padding-top:10px;height:86vh;overflow-y:hidden">
+
+    <div class="info-box bg-dark">
+        <div class="info-box-content">
+            <h3 class="info-box-text">JOB VIEW</h3>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-2">
+            <div class="info-box bg-dark" style="width:100%">
+                <div class="info-box-content row">
+                    <div class="col-4 text-center">
+                        <label class="info-box-text" for="ProjectYears" style="height:100%">Year</label>
+                    </div>
+                    <div class="col-8">
+                        <select class="form-control" id="ProjectYears" style="width:100%">
+                            @* Generate By JavaScript *@
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-box bg-dark" style="height:90px">
+                <div class="info-box-content text-center">
+                    <h3 class="info-box-text">
+                        Job Lists
+                    </h3>
+                </div>
+            </div>
+
+            <div id="div_selection" style="height:59vh;overflow-y:scroll">
+                <ul id="pj_lists" class="list-group">
+                </ul>
+            </div>
+
+        </div>
+        <div class="col-10">
+            <div class="info-box bg-dark" style="width:100%;">
+                <div class="info-box-content">
+                    <div class="row">
+                        <div class="col-12">
+                            <h4 id="job_id" class="info-box-text">
+                                Please Select Job
+                            </h4>
+                            @*<h4 id="job_name" class="info-box-text">
+                                </h4>*@
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-4">
+                    <div id="ib_progress" class="info-box bg-dark" style="height:90px;display:none">
+                        <i class="fas fa-chart-line info-box-icon bg-teal"></i>
+                        <div class="info-box-content">
+                            <span class="info-box-text" style="font-weight:bold">Progress</span>
+                            <div class="progress bg-white">
+                                <div id="pb_progress" class="progress-bar bg-teal" style="width:80%"></div>
+                            </div>
+                            <span id="pb_progress_description" class="progress-description">
+                                80% Completion
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div id="ib_spent" class="info-box bg-dark" style="height:90px;display:none">
+                        <i class="fas fa-money-bill-wave info-box-icon bg-lightblue"></i>
+                        <div class="info-box-content">
+                            <span class="info-box-text" style="font-weight:bold">Budget Spent</span>
+                            <span id="spent_number" class="info-box-number" style="font-weight:normal">75/100</span>
+                            <div class="progress bg-white">
+                                <div id="pb_spent" class="progress-bar bg-lightblue" style="width:75%"></div>
+                            </div>
+                            <span id="pb_spent_description" class="progress-description">
+                                75% Spent
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                @*<div class="col-3">
+                        <div id="ib_remain" class="info-box bg-dark" style="height:90px;display:none">
+                            <i class="fas fa-coins info-box-icon bg-danger"></i>
+                            <div class="info-box-content">
+                                <span class="info-box-text">Budget Remain</span>
+                                <span id="ib_remain_number" class="info-box-number">25/100</span>
+                                <div class="progress bg-white">
+                                    <div id="pb_remain" class="progress-bar bg-danger" style="width:25%"></div>
+                                </div>
+                                <span id="pb_remain_description" class="progress-description">
+                                    25% of Budget left
+                                </span>
+                            </div>
+                        </div>
+                    </div>*@
+                <div class="col-4">
+                    <div id="ib_labor" class="info-box bg-dark" style="height:90px;display:none">
+                        <i class="fas fa-users info-box-icon bg-warning"></i>
+                        <div class="info-box-content">
+                            <span class="info-box-text" style="font-weight:bold">Max Number Of Labor</span>
+                            <span id="ib_labor_number" class="info-box-number" style="font-weight:normal">22</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="div_content" style="height:59vh;overflow-y:scroll;display:none">
+                <div id="card_spf" class="card card-dark" style="display:none">
+                    <div class="card-header">
+                        <span class="card-title">
+                            Spent Per Fortnight
+                        </span>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="canvas_1" style="height:400px"></canvas>
+                    </div>
+                </div>
+
+                <div id="card_mph" class="card card-dark" style="display:none">
+                    <div class="card-header">
+                        <span class="card-title">
+                            Manpower Per Hour
+                        </span>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="canvas_2" style="height:400px"></canvas>
+                    </div>
+                </div>
+
+                <div id="card_npero" class="card card-dark" style="display:none">
+                    <div class="card-header">
+                        <span class="card-title">
+                            Normal Per Overtime Ratio
+                        </span>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="canvas_4" style="height:400px"></canvas>
+                    </div>
+                </div>
+
+                <br />
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+@section Scripts
+{
+    <script type="text/javascript">
+        var list_job_id = [];
+        var chart;
+        var chart2;
+        var chart4;
+
+        $(document).ready(function () {
+            SetScreenSize();
+            GenerateYearOption();
+            GetJobID();
+        });
+
+        $(window).resize(function () {
+            SetScreenSize();
+        })
+
+        function SetScreenSize() {
+            var view_height = $(window).height();
+            if (window.innerHeight == screen.height) {
+                $('#div_container').height(view_height * 0.86);
+                $('#div_selection').height(view_height * 0.59);
+                $('#div_content').height(view_height * 0.59);
+            }
+            else {
+                $('#div_container').height(view_height * 0.85);
+                $('#div_selection').height(view_height * 0.54);
+                $('#div_content').height(view_height * 0.54);
+            }
+        }
+
+        function GenerateYearOption() {
+            $('#ProjectYears').find('option').remove();
+            var str = '<option selected>ALL</option>';
+            var current_year = new Date();
+            for (var i = 0; i < 10; i++) {
+                var year = parseInt(current_year.getFullYear()) - i;
+                str += '<option value="' + year + '">' + year + '</option>';
+            }
+            $('#ProjectYears').append(str);
+        }
+
+        $('#ProjectYears').on('change', function () {
+            GetJobID();
+        });
+
+        var jobs = [];
+        function GetJobID() {
+            var year = $('#ProjectYears').val();
+            if (year == "ALL") {
+                //console.log("Get All Job");
+                $.ajax({
+                type: "GET",
+                url: '@Url.Action("GetJobs", "ProjectView")',
+	            contentType: 'application/x-www-form-urlencoded',
+                data: {
+
+                },
+                success: function (response) {
+                    //console.log("Response");
+                    //console.log(response);
+                    jobs = response;
+                    GenProjectOptions();
+                }
+            });
+            }
+            else {
+                //console.log("Get Job in " + year);
+                $.ajax({
+                type: "GET",
+                url: '@Url.Action("GetJobsByYear", "ProjectView")',
+	            contentType: 'application/x-www-form-urlencoded',
+                data: {
+                    year
+                },
+                success: function (response) {
+                    //console.log("Response");
+                    //console.log(response);
+                    jobs = response;
+                    GenProjectOptions();
+                }
+            });
+            }
+        }
+
+        function GenProjectOptions() {
+            $('#pj_lists').empty();
+            var str = '';
+            for (var i = 0; i < jobs.length; i++) {
+                str += '<li class="list-group-item" style="padding:1px">';
+                str += '<button type="button" class="btn form-control" style="background-color:rgba(40,121,191,1);color:rgba(255,255,255,1)" onclick=ViewJobData("' + jobs[i].job_id + '")>';
+                str += jobs[i].job_id;
+                str += '</button >';
+                str += '</li>';
+            }
+            $('#pj_lists').append(str);
+        }
+
+        function ViewJobData(job_id) {
+            var index = -1;
+            for (var i = 0; i < jobs.length; i++) {
+                if (jobs[i].job_id == job_id)
+                    index = i;
+            }
+            $('#job_id').html("<strong>JOB NUMBER: </strong>" + jobs[index].job_number  +"   " + "<strong>JOB NAME: </strong>" + jobs[index].job_name);
+           // $('#job_name').html("JOB NAME: " + jobs[index].job_name);
+            GetJobProgress(job_id);
+            $('#div_content').show();
+            GetHalfMonthSpent(job_id);
+            GetManPower(job_id);
+            GetNormalOvertimeRatio(job_id);
+        }
+
+        function GetJobProgress(job_id) {
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("GetJobProgress", "ProjectView")',
+                contentType: 'application/x-www-form-urlencoded',
+                data: {
+                    job_id
+                },
+                success: function (response) {
+                    //console.log("Progress");
+                    //console.log(response);
+
+                    //Progress
+                    var percentage_progress = response[0].work_completion + "%";
+                    $('#ib_progress').show();
+                    $('#pb_progress').width(percentage_progress);
+                    $('#pb_progress_description').html(percentage_progress + " Work Completion");
+
+                    //Spent
+                    var percentage_spent = response[0].cost_usage;
+                    $('#ib_spent').show();
+                    var budget_str = response[0].cost_to_date.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + "/" + response[0].estimated_budget.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+                    $('#spent_number').html(budget_str);
+                    $('#pb_spent').width(percentage_spent + "%");
+                    var remain_str = response[0].remainning_cost.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + " Remain";
+                    //$('#pb_spent_description').html(percentage_spent + "% Budget Spent");
+                    $('#pb_spent_description').html(remain_str);
+
+                    //Remain
+                    @*var percentage_remain = Math.round((response[0].remainning_cost / response[0].estimated_budget) * 100);
+                    $('#ib_remain').show();
+                    $('#ib_remain_number').html(response[0].remainning_cost.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + "/" + response[0].estimated_budget.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","));
+                    $('#pb_remain').width(percentage_remain + "%");
+                    $('#pb_remain_description').html(percentage_remain + "% Budget Remain");*@
+
+                    //Labor
+                    $('#ib_labor').show();
+                    $('#ib_labor_number').html(response[0].no_of_labor);
+                }
+            });
+        }
+
+        function GetHalfMonthSpent(job_id) {
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("GetHalfMonthSpent", "ProjectView")',
+                contentType: 'application/x-www-form-urlencoded',
+                data: {
+                    job_id
+                },
+                success: function (response) {
+                    //console.log("Half Month Spent");
+                    //console.log(response);
+                    GenSPFChart(response);
+                }
+            });
+        }
+
+        function GetManPower(job_id) {
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("GetManPower", "ProjectView")',
+                contentType: 'application/x-www-form-urlencoded',
+                data: {
+                    job_id
+                },
+                success: function (response) {
+                    //console.log("Man Power");
+                    //console.log(response);
+                    GenMPHChart(response);
+                }
+            });
+        }
+
+        function GetNormalOvertimeRatio(job_id) {
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("GetNormalOvertimeRatio", "ProjectView")',
+                contentType: 'application/x-www-form-urlencoded',
+                data: {
+                    job_id
+                },
+                success: function (response) {
+                    //console.log("Normal Overtime Ratio");
+                    //console.log(response);
+                    GenNPOChart(response);
+                }
+            });
+        }
+
+        //Spent per 15 days
+        function GenSPFChart(job) {
+            if (chart != null)
+                chart.destroy();
+            if (job.length > 0) {
+                $('#card_spf').show();
+                var months = ["", "JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+                var weeks = [];
+                var budget50 = [];
+                var budget70 = [];
+                var budget80 = [];
+                var budget100 = [];
+                var acc_cost = [];
+                var progress = [];
+                var spent_cost = [];
+
+                for (var i = 0; i < job.length; i++) {
+                    var week = months[job[i].month] + ' ' + job[i].week + ' ' + job[i].year;
+                    weeks.push(week);
+                    budget50.push(job[i].budget50);
+                    budget70.push(job[i].budget70);
+                    budget80.push(job[i].budget80);
+                    budget100.push(job[i].budget100);
+                    acc_cost.push(job[i].acc_cost);
+                    progress.push(job[i].progress);
+                    spent_cost.push(job[i].spent_cost);
+                }
+                var ctx = document.getElementById('canvas_1').getContext('2d');
+                chart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: weeks,
+                        datasets: [
+                            {
+                                type: 'bar',
+                                label: 'Budget Spent',
+                                data: spent_cost,
+                                backgroundColor: 'rgba(2,62,138,0.75)',
+                                borderColor: 'rgba(2,62,138,1)',
+                                yAxisID: 'spent',
+                            },
+                            {
+                                type: 'line',
+                                label: "Total Spent",
+                                data: acc_cost,
+                                backgroundColor: 'rgba(72, 202, 228, 0.75)',
+                                borderColor: 'rgba(72, 202, 228, 1)',
+                                yAxisID: 'spent',
+                            },
+                            {
+                                label: 'Progress',
+                                data: progress,
+                                type: 'line',
+                                backgroundColor: 'rgba(60,224,175,0.75)',
+                                borderColor: 'rgba(60,224,175,1)',
+                                yAxisID: 'progress',
+                            },
+                            {
+                                type: 'line',
+                                label: "70% Budget",
+                                data: budget70,
+                                fill: false,
+                                backgroundColor: 'rgba(255,255,255,0.2)',
+                                borderColor: 'rgba(255, 255, 0, 0.3)',
+                            },
+                            {
+                                type: 'line',
+                                label: "80% Budget",
+                                data: budget80,
+                                fill: {
+                                    value: budget100[0] * 0.7,
+                                    above: 'rgba(255,200,50,0.2)',
+                                    below: 'rgba(255, 255, 255,0)',
+                                },
+                                borderDash: [10, 5],
+                                borderColor: ['rgba(255, 200, 50, 0)'],
+                            },
+                            {
+                                type: 'line',
+                                label: '100% of Budget',
+                                data: budget100,
+                                fill: {
+                                    value: budget100[0] * 0.8,
+                                    above: 'rgba(255,0,0,0.2)',
+                                    below: 'rgba(255, 255, 255,0)',
+                                },
+                                borderDash: [10, 5],
+                                borderColor: ['rgba(255, 0, 0, 0)'],
+                            },
+                        ]
+                    },
+                    options: {
+                        scales: {
+                            'spent': {
+                                type: 'linear',
+                                position: 'left',
+                                title: {
+                                    display: true,
+                                    text: 'Spent(BAHT)'
+                                },
+                                suggestedMin: 0,
+                                suggestedMax: budget100[0],
+                                ticks: {
+                                    stepSize: budget100[0] / 10
+                                }
+                            },
+                            'progress': {
+                                type: 'linear',
+                                position: 'right',
+                                title: {
+                                    display: true,
+                                    text: 'Progress(%)'
+                                },
+                                grid: {
+                                    display: false,
+                                },
+                                suggestedMin: 0,
+                                suggestedMax: 100,
+                                ticks: {
+                                    stepSize: 10
+                                }
+                            }
+                        },
+                        maintainAspectRatio: false,
+                        plugins: {
+                            tooltip: {
+                                callbacks: {
+                                    label: function (context) {
+                                        var lbl = context.dataset.label;
+                                        var value = context.dataset.data[context.dataIndex];
+                                        if (lbl == "Progress") {
+                                            return "Progress: " + value + " %";
+                                        }
+                                        else if (lbl == "Budget Spent") {
+                                            return "Budget Spent: " + value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+                                        }
+                                        else if (lbl == "Total Spent") {
+                                            return "Total Spent: " + value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+                                        }
+                                        else {
+                                            return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+            else
+                $('$card_spf').hide();
+        }
+
+        //Manpower per hour
+        function GenMPHChart(job) {
+            if (chart2 != null)
+                chart2.destroy();
+            if (job.length > 0) {
+                $('#card_mph').show();
+                var months = ["", "JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+                var weeks = [];
+                var normal = [];
+                var ot_1_5 = [];
+                var ot_3 = [];
+                var acc_hour = [];
+                for (var i = 0; i < job.length; i++) {
+                    var week = months[job[i].month] + ' ' + job[i].week + ' ' + job[i].year;
+                    weeks.push(week);
+                    normal.push(job[i].normal);
+                    ot_1_5.push(job[i].ot_1_5);
+                    ot_3.push(job[i].ot_3);
+                    acc_hour.push(job[i].acc_hour);
+                }
+                var col_normal = 'rgba(2,62,138,';
+                var col_ot15 = 'rgba(0,150,199,';
+                var col_ot03 = 'rgba(72,202,228,';
+                var col_acc = 'rgba(3,4,94,';
+                var ctx2 = document.getElementById('canvas_2').getContext('2d');
+                chart2 = new Chart(ctx2, {
+                    type: 'bar',
+                    data: {
+                        labels: weeks,
+                        datasets: [
+                            {
+                                type: 'bar',
+                                label: 'Normal',
+                                data: normal,
+                                borderColor: col_normal + '1)',
+                                backgroundColor: col_normal + '0.75)',
+                                borderWidth: 1
+                            },
+                            {
+                                type: 'bar',
+                                label: 'Overtime 1.5',
+                                data: ot_1_5,
+                                backgroundColor: col_ot15 + '0.75)',
+                                borderColor: col_ot15 + '1)',
+                                borderWidth: 1
+                            },
+                            {
+                                type: 'bar',
+                                label: 'Overtime 3.0',
+                                data: ot_3,
+                                backgroundColor: col_ot03 + '0.75)',
+                                borderColor: col_ot03 + '1)',
+                                borderWidth: 1
+                            },
+                            {
+                                type: 'line',
+                                label: 'Total (Accumulation)',
+                                data: acc_hour,
+                                backgroundColor: col_acc + '0.75)',
+                                borderColor: col_acc + '1)',
+                            }
+                        ]
+                    },
+                    options: {
+                        scales: {
+                            yAxes: {
+                                title: {
+                                    display: true,
+                                    text: 'Manpower(Hours)'
+                                },
+                                ticks: {
+                                    beginAtZero: true
+                                },
+                                stacked: true
+                            },
+                            xAxes: {
+                                stacked: true
+                            }
+                        },
+                        maintainAspectRatio: false,
+                    }
+                });
+            }
+            else
+                $('#card_mph').hide();
+        }
+
+        //Normal Overtime Ratio
+        function GenNPOChart(job) {
+            if (chart4 != null)
+                chart4.destroy();
+            if (job.length > 0) {
+                $('#card_npero').show();
+                var ctx4 = document.getElementById('canvas_4').getContext('2d');
+                chart4 = new Chart(ctx4, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Normal', 'Overtime'],
+                        datasets: [{
+                            data: [job[0].normal,job[0].overtime],
+                            backgroundColor: [
+                                'rgba(2, 62, 138,0.75)',
+                                'rgba(0, 150, 199,0.75)'
+                            ],
+                        }]
+                    },
+                    options: {
+                    maintainAspectRatio: false,
+                        tooltips: {
+                            callbacks: {
+                                label: function (tooltipItem, data) {
+                                    return data.labels[tooltipItem.index] + ': ' + parseInt((data.datasets[0].data[tooltipItem.index] / 240) * 100) + ' %';
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+            else
+                $('#card_npero').hide();
+        }
+
+    </script>
+}

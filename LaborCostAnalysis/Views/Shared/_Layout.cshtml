@@ -1,0 +1,29 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>@ViewData["Title"] - ProjectManaging</title>
+    <partial name="Style" />
+</head>
+<body class="hold-transition layout-fixed layout-footer-fixed layout-navbar-fixed">
+    <div class="wrapper">
+        <partial name="TopMenu" />
+        <partial name="SideMenu" />
+        <div class="content-wrapper">
+            <div class="content">
+                <main role="main" class="pb-3">
+                    <partial name="Responsive" />
+                    @RenderBody()
+                </main>
+            </div>
+        </div>
+        <partial name="Sidebar" />
+        <partial name="Footer" />
+    </div>
+    <partial name="Scripts" />
+    <partial name="_CookieConsentPartial" />
+    @RenderSection("Scripts", required: false)
+</body>
+</html>

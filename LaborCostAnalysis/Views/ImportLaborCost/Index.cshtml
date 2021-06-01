@@ -1,0 +1,192 @@
+﻿<!-- Import Labor Cost -->
+@{
+    ViewData["Title"] = "Import Cost";
+}
+<div class="container-fluid" style="padding-top:10px">
+
+    <div class="info-box bg-dark">
+        <div class="info-box-content">
+            <h3 class="info-box-text">IMPORT LABOR COST</h3>
+        </div>
+    </div>
+
+    <div class="card card-dark">
+        <div class="card-header">
+            <span class="card-title">Select File to Upload</span>
+            <div class="card-tools">
+                <button type="button" class="btn btn-dark btn-sm" data-card-widget="collapse">
+                    <i class="fas fa-minus"></i>
+                </button>
+                <button type="button" class="btn btn-dark btn-sm" data-card-widget="remove">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+        <div class="card-body">
+            <label id="import_file_label">Choose File</label>
+            <input id="import_file" class="form-control-file" type="file" />
+        </div>
+    </div>
+
+    <div id="card_upload" class="card card-dark" style="display:none">
+        <div class="card-header">
+            <span class="card-title">Uploaded Content</span>
+            <div class="card-tools">
+                <button type="button" class="btn btn-dark btn-sm" data-card-widget="collapse">
+                    <i class="fas fa-minus"></i>
+                </button>
+                <button type="button" class="btn btn-dark btn-sm" data-card-widget="remove">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+        <div class="card-body">
+            <table id="table_uploaded_data" class="table table-sm table-hover" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>Job Number</th>
+                        <th>Name</th>
+                        <th>Week Time</th>
+                        <th>Labor Cost</th>
+                        <th>Overtime</th>
+                        <th>Accomodation Cost</th>
+                        <th>Compensation Cost</th>
+                        <th>Social Security</th>
+                        <th>Number of Labor</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @* Generate by JavaScript *@
+                </tbody>
+            </table>
+        </div>
+        <div class="card-footer">
+            <button id="btn_import" class="btn btn-primary float-right">
+                Import
+            </button>
+        </div>
+    </div>
+
+</div>
+
+<!-- Modal -->
+<div class="modal" id="modal_upload" tabindex="-1" role="dialog" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Upload</h5>
+            </div>
+            <div class="modal-body">
+                Uploading Please Wait
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts
+{
+    <script type="text/javascript">
+        var table;
+        var jobs = [];
+
+        $('#import_file').on('change', async function () {
+            var fileExtension = ['xls', 'xlsx'];
+            var filename = $('#import_file').val();
+
+            if (filename.length == 0) {
+                alert("Please Select a File");
+            }
+            else {
+                var extension = filename.replace(/^.*\./, '');
+                if ($.inArray(extension, fileExtension) == -1) {
+                    alert("Please select only excel files.");
+                }
+            }
+
+            var fdata = new FormData();
+            var fileupload = $('#import_file').get(0);
+            var files = fileupload.files;
+
+            fdata.append(files[0].name, files[0]);
+            $('#import_file_label').text(files[0].name);
+            await $.ajax({
+                type: "POST",
+                url: "ImportLaborCost/ImportSpent",
+                beforeSend: function (xhr) {
+                    xhr.setRequestHeader("XSRF-TOKEN",
+                        $('input:hidden[name="__RequestVerificationToken"]').val());
+                },
+                data: fdata,
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    if (response.length == 0)
+                        alert('Some error occured while uploading');
+                    else {
+                        //console.log("Response");
+                        //console.log(response);
+                        jobs = response;
+                        GenUploadData();
+                    }
+                },
+            });
+        });
+
+        function GenUploadData() {
+            $('#card_upload').show();
+            var datas = [];
+            for (var i = 0; i < jobs.length; i++) {
+                datas.push([
+                    jobs[i].job_id,
+                    jobs[i].job_name,
+                    jobs[i].week_time,
+                    jobs[i].labor_cost,
+                    jobs[i].ot_cost,
+                    jobs[i].accomodate,
+                    jobs[i].compensate,
+                    jobs[i].social_security,
+                    jobs[i].number_of_labor
+                ]);
+            }
+
+            if (table != null)
+                $('#table_uploaded_data').DataTable().destroy();
+
+            $('#table_uploaded_data').DataTable({
+                data: datas,
+                pagingType: "full_numbers",
+                lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]]
+            });
+        }
+
+        $('#btn_import').on('click', function () {
+            $('#btn_import').attr('disabled', true);
+            $('#modal_upload').modal("show");
+            ConfirmUpload();
+        });
+
+        function ConfirmUpload() {
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("ConfirmUpload", "ImportLaborCost")',
+	            contentType: 'application/x-www-form-urlencoded',
+                data: {
+
+                },
+                success: function (response) {
+                    if (response != "Done") {
+                        $('#modal_upload').modal("hide");
+                        $('#btn_import').attr('disabled', false);
+                        alert("please add job " + response);
+                    }
+                    else {
+                        $('#modal_upload').modal("hide");
+                        $('#btn_import').attr('disabled', false);
+                        alert("Done");
+                    }
+                }
+            });
+        }
+
+    </script>
+}

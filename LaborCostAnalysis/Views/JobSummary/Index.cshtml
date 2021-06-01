@@ -1,0 +1,171 @@
+﻿<!-- Summary Index -->
+@{
+    ViewData["Title"] = "Summary";
+}
+<div class="container-fluid" style="padding-top:10px">
+
+    <div class="info-box bg-dark">
+        <div class="info-box-content">
+            <h3 class="info-box-text">SUMMARY</h3>
+        </div>
+    </div>
+
+    <div class="card card-dark" style="width:100%">
+        <div class="card-header">
+            <span class="card-title">JOBS</span>
+            <div class="card-tools">
+                <button id="btn_cost_details" type="button" class="btn btn-dark">
+                    Show Cost Detail
+                </button>
+                <button id="btn_mph_details" type="button" class="btn btn-dark">
+                    Show Man Power Detail
+                </button>
+                <button type="button" class="btn btn-dark" data-card-widget="collapse">
+                    <i class="fas fa-minus"></i>
+                </button>
+                <button type="button" class="btn btn-dark btn-sm" data-card-widget="remove">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+        <div class="card-body">
+            <table id="summary_table" class="table table-sm table-hover table-head-fixed" style="width:100%">
+                <thead>
+                    <tr>
+                        <th style="text-align:center">Job Number</th>
+                        <th style="text-align:center">Estimated Budget</th>
+
+                        <th style="text-align:center">Labor Cost</th>
+                        <th style="text-align:center">OT Labor Cost</th>
+                        <th style="text-align:center">Accomodation Cost</th>
+                        <th style="text-align:center">Compensation Cost</th>
+                        <th style="text-align:center">Social Security</th>
+
+                        <th style="text-align:center">Cost to Date</th>
+                        <th style="text-align:center">Remainning Cost</th>
+                        <th style="text-align:center">Cost Usage(%)</th>
+                        <th style="text-align:center">Work Completion(%)</th>
+
+                        <th style="text-align:center">Normal Man Hour</th>
+                        <th style="text-align:center">1.5 Man Hour</th>
+                        <th style="text-align:center">3.0 Man Hour</th>
+                        <th style="text-align:center">Total Man Hour</th>
+                        <th style="text-align:center">Number of Labor</th>
+                        <th style="text-align:center">Average Labor Cost Per Hour</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts
+{
+    <script type="text/javascript">
+        var table;
+        var summaries = [];
+
+        $(document).ready(function () {
+            GetJobsSummary();
+        });
+
+        async function GetJobsSummary() {
+            await $.ajax({
+                type: "GET",
+                url: '@Url.Action("GetJobsSummary", "JobSummary")',
+	            contentType: 'application/x-www-form-urlencoded',
+                data: {
+
+                },
+                success: function (response) {
+                    //console.log("Response");
+                    //console.log(response);
+                    summaries = response;
+                    GenSummaryTable();
+                }
+            });
+        }
+
+        function GenSummaryTable() {
+            var datas = [];
+            for (var i = 0; i < summaries.length; i++) {
+                var job_year = summaries[i].job_id.substring(0, 3);
+                var job_number = summaries[i].job_id.substring(3);
+                datas.push([
+                    job_year + '-' + job_number,
+                    summaries[i].estimated_budget.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","),
+                    summaries[i].labor_cost.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","),
+                    summaries[i].ot_labor_cost.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","),
+                    summaries[i].accomodation_cost.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","),
+                    summaries[i].compensation_cost.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","),
+                    summaries[i].social_security.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","),
+                    summaries[i].cost_to_date.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","),
+                    summaries[i].remainning_cost.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","),
+                    summaries[i].cost_usage,
+                    summaries[i].work_completion,
+                    summaries[i].hours.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","),
+                    summaries[i].ot_1_5.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","),
+                    summaries[i].ot_3.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","),
+                    summaries[i].total_man_hour.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","),
+                    summaries[i].no_of_labor.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","),
+                    summaries[i].avg_labor_cost_per_hour.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","),
+                ]);
+            }
+
+            if (table != null)
+                $('#summary_table').DataTable().destroy();
+
+            table = $('#summary_table').DataTable({
+                data: datas,
+                pagingType: "full_numbers",
+                order: [
+                    [0, "desc"]
+                ],
+                columnDefs: [
+                    { "className": "dt-center", "targets": "_all" },
+                    {
+                        targets: [2, 3, 4, 5,6],
+                        visible: show_cost_details,
+                        searchable: show_cost_details,
+                        //className: 'bg-lightblue'
+                    },
+                    {
+                        targets: [11, 12, 13],
+                        visible: show_mph_details,
+                        searchable: show_mph_details,
+                        //className: 'bg-blue'
+                    }
+                ]
+            });
+        }
+
+        var show_cost_details = false;
+        $('#btn_cost_details').on('click', function () {
+            if (show_cost_details == false) {
+                show_cost_details = true;
+                $('#btn_cost_details').html("Hide Cost Detail");
+            }
+            else {
+                show_cost_details = false;
+                $('#btn_cost_details').html("Show Cost Detail");
+            }
+            var column = table.columns([2, 3, 4, 5, 6]).visible(show_cost_details);
+        });
+
+        var show_mph_details = false;
+        $('#btn_mph_details').on('click', function () {
+            if (show_mph_details == false) {
+                show_mph_details = true;
+                $('#btn_mph_details').html("Hide Man Power Detail");
+            }
+            else {
+                show_mph_details = false;
+                $('#btn_mph_details').html("Show Man Power Detail");
+            }
+            var column = table.columns([11, 12, 13]).visible(show_mph_details);
+        });
+
+    </script>
+}

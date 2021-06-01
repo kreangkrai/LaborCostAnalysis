@@ -1,0 +1,141 @@
+﻿<!-- Man Per Hour Index -->
+@{
+    ViewData["Title"] = "Man Power";
+}
+<div class="container-fluid" style="padding-top:10px">
+    <div class="info-box bg-dark">
+        <div class="info-box-content">
+            <h3 class="info-box-text">MANPOWER</h3>
+        </div>
+    </div>
+    <div id="projects"></div>
+</div>
+
+@section Scripts
+{
+    <script type="text/javascript">
+        var months = ["", "JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+        $(document).ready(function () {
+            GetData();
+        });
+
+        async function GetData() {
+            await $.ajax({
+                type: "GET",
+                url: '@Url.Action("GetData", "ManPower")',
+	            contentType: 'application/x-www-form-urlencoded',
+                data: {
+
+                },
+                success: function (response) {
+                    //console.log("Response");
+                    //console.log(response);
+                    GenManPowerChart(response);
+                }
+            });
+        }
+
+        function GenManPowerChart(data) {
+            $('#projects').empty();
+            for (var i = 0; i < data.length; i++) {
+                var job_year = data[i][0].job_id.substring(0, 3);
+                var job_number = data[i][0].job_id.substring(3);
+                var job_id = job_year + '-' + job_number.padStart(4, '0');
+
+                var str = '<div class="card card-dark"><div class="card-header"><span class="card-title">JOB ID: ' + job_id + '</span></div>';
+                str += '<div class="card-body"><canvas id="' + job_id + '" style="height:400px"></canvas></div></div>';
+                $('#projects').append(str);
+
+                var weeks = [];
+                var normal = [];
+                var ot_1_5 = [];
+                var ot_3 = [];
+                var acc_hour = [];
+                for (var j = 0; j < data[i].length; j++) {
+                    var week = months[data[i][j].month] + ' ' + data[i][j].week + ' ' + data[i][j].year;
+                    weeks.push(week);
+                    normal.push(data[i][j].normal);
+                    ot_1_5.push(data[i][j].ot_1_5);
+                    ot_3.push(data[i][j].ot_3);
+                    acc_hour.push(data[i][j].acc_hour);
+                }
+
+                @*weeks = ["APR 1", "APR 2", "MAY 1", "MAY 2"];
+                normal = [1100, 1300, 1500, 1200];
+                ot_1_5 = [500, 450, 350, 200];
+                ot_3 = [125, 170, 120, 52];
+                var acc0 = normal[0] + ot_1_5[0] + ot_3[0];
+                var acc1 = normal[1] + ot_1_5[1] + ot_3[1];
+                var acc2 = normal[2] + ot_1_5[2] + ot_3[2];
+                var acc3 = normal[3] + ot_1_5[3] + ot_3[3];
+                acc_hour = [acc0, acc0 + acc1, acc0 + acc1 + acc2, acc0 + acc1 + acc2 + acc3];*@
+
+                var col_normal = 'rgba(2,62,138,';
+                var col_ot15 = 'rgba(0,150,199,';
+                var col_ot03 = 'rgba(72,202,228,';
+                var col_acc = 'rgba(3,4,94,';
+
+                var ctx = document.getElementById(job_id).getContext('2d');
+                var myChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: weeks,
+                        datasets: [
+                            {
+                                type: 'bar',
+                                label: 'Normal',
+                                data: normal,
+                                borderColor: col_normal + '1)',
+                                backgroundColor: col_normal + '0.75)',
+                                borderWidth: 1
+                            },
+                            {
+                                type: 'bar',
+                                label: 'Overtime 1.5',
+                                data: ot_1_5,
+                                backgroundColor: col_ot15 + '0.75)',
+                                borderColor: col_ot15 + '1)',
+                                borderWidth: 1
+                            },
+                            {
+                                type: 'bar',
+                                label: 'Overtime 3.0',
+                                data: ot_3,
+                                backgroundColor: col_ot03 + '0.75)',
+                                borderColor: col_ot03 + '1)',
+                                borderWidth: 1
+                            },
+                            {
+                                type: 'line',
+                                label: 'Total (Accumulation)',
+                                data: acc_hour,
+                                backgroundColor: col_acc + '0.75)',
+                                borderColor: col_acc + '1)',
+                            }
+                        ]
+                    },
+                    options: {
+                        scales: {
+                            yAxes: {
+                                title: {
+                                    display: true,
+                                    text: 'Manpower(Hours)'
+                                },
+                                ticks: {
+                                    beginAtZero: true
+                                },
+                                stacked: true
+                            },
+                            xAxes: {
+                                stacked: true
+                            }
+                        },
+                        maintainAspectRatio: false
+                    }
+                });
+
+            }
+        }
+
+    </script>
+}

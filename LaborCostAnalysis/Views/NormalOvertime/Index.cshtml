@@ -1,0 +1,80 @@
+﻿<!-- Normal Per OT Ratio Index -->
+@{
+    ViewData["Title"] = "Normar Overtime Ratio";
+}
+<div class="container-fluid" style="padding-top:10px">
+
+    <div class="info-box bg-dark">
+        <div class="info-box-content">
+            <h3 class="info-box-text">NORMAL OVERTIME RATIO</h3>
+        </div>
+    </div>
+
+    <div id="project_lists">
+        @* Generate by Scripts *@
+    </div>
+
+</div>
+
+@section Scripts
+{
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+            @*Chart.plugins.register(ChartDataLabels);*@
+            GetData();
+        });
+
+        async function GetData() {
+            await $.ajax({
+                type: "GET",
+                url: '@Url.Action("GetData", "NormalOvertime")',
+	            contentType: 'application/x-www-form-urlencoded',
+                data: {
+
+                },
+                success: function (response) {
+                    //console.log("Data");
+                    //console.log(response);
+                    GenChart(response);
+                }
+            });
+        }
+
+        function GenChart(data) {
+            $('#project_lists').empty();
+            for (var i = 0; i < data.length; i++) {
+                var job_number = data[i].job_id.substring(0, 3) + '-' + data[i].job_id.substring(3);
+                var str = '<div class="card card-dark"><div class="card-header"><span class="card-title">JOB ID: ' + job_number + '</span></div>';
+                str += '<div class="card-body"><canvas id="' + data[i].job_id + '" style="height:400px"></canvas></div></div>';
+                $('#project_lists').append(str);
+
+                var ctx = document.getElementById(data[i].job_id).getContext('2d');
+                var chart = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Normal','Overtime'],
+                        datasets: [{
+                            data: [data[i].normal,data[i].overtime],
+                            backgroundColor: [
+                                'rgba(2, 62, 138,0.75)',
+                                'rgba(0, 150, 199,0.75)'
+                            ],
+                        }]
+                    },
+                    options: {
+                        maintainAspectRatio: false,
+                        tooltips: {
+                            callbacks: {
+                                label: function (tooltipItem, data) {
+                                    return data.labels[tooltipItem.index] + ': ' + parseInt((data.datasets[0].data[tooltipItem.index] / 240) * 100) + ' %';
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+    </script>
+}

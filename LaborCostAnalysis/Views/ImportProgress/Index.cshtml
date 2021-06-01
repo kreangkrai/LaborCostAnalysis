@@ -1,0 +1,562 @@
+﻿<!-- Progress Index -->
+@{
+    ViewData["Title"] = "Import Progress";
+}
+<div class="container-fluid" style="padding-top:10px">
+
+    <style>
+        table.dataTable tbody td {
+            vertical-align: middle;
+            cursor: pointer;
+        }
+    </style>
+
+    <div class="info-box bg-dark">
+        <div class="info-box-content">
+            <h3 class="info-box-text">IMPORT PROGRESS</h3>
+        </div>
+    </div>
+
+    <div class="card card-dark">
+        <div class="card-header">
+            <span class="card-title">Select File</span>
+            <div class="card-tools">
+                <button type="button" class="btn btn-dark btn-sm" data-card-widget="collapse">
+                    <i class="fas fa-minus"></i>
+                </button>
+                <button type="button" class="btn btn-dark btn-sm" data-card-widget="remove">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+        <div class="card-body">
+            <form>
+                <div class="form-row">
+                    <label>Select Year</label>
+                    <select id="select_progress_year" class="form-control">
+                        @* Generate By JavaScript *@
+                    </select>
+                </div>
+                <br />
+                <div class="form-row">
+                    <label>Select Month</label>
+                    <select id="select_progress_month" class="form-control">
+                        @* Generate By JavaScript *@
+                    </select>
+                </div>
+                <br />
+                <div id="div_file" class="form-row" style="display:none">
+                    <label id="import_file_label">Select File</label>
+                    <input id="import_file" class="form-control-file" type="file" />
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="card_upload" class="card card-dark" style="display:none">
+        <div class="card-header">
+            <span class="card-title">
+                Uploaded Content
+            </span>
+            <div class="card-tools">
+                <button type="button" class="btn btn-dark btn-sm" data-card-widget="collapse">
+                    <i class="fas fa-minus"></i>
+                </button>
+                <button type="button" class="btn btn-dark btn-sm" data-card-widget="remove">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+        <div class="card-body">
+            <label for="year">Year</label>
+            <input id="year" class="form-control" type="text" disabled />
+            <label for="week_time">Month</label>
+            <input id="week_time" class="form-control" type="text" disabled />
+            <br />
+            <table id="table_progress" class="table table-sm table-hover" style="width:100%">
+                <thead>
+                    <tr>
+                        <th style="text-align:center">Job ID</th>
+                        <th style="text-align:center">Estimated Budget</th>
+                        <th style="text-align:center">Progress</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @* Generate By JavaScript *@
+                </tbody>
+            </table>
+        </div>
+        <div class="card-footer">
+            <button id="btn_confirm_import" class="btn btn-primary" type="button" style="float:right">
+                Import
+            </button>
+        </div>
+    </div>
+
+    <div class="card card-dark">
+        <div class="card-header">
+            <span class="card-title">Job's Progress</span>
+            <div class="card-tools">
+                <button type="button" class="btn btn-dark btn-sm" data-card-widget="collapse">
+                    <i class="fas fa-minus"></i>
+                </button>
+                <button type="button" class="btn btn-dark btn-sm" data-card-widget="remove">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+        <div class="card-body">
+            <table id="table_jobs" class="table table-sm table-hover" style="width:100%">
+                <thead>
+                    <tr>
+                        <th style="text-align:center">Job ID</th>
+                        <th style="text-align:center">Name</th>
+                        <th style="text-align:center">Budget</th>
+                        <th style="text-align:center">Remain</th>
+                        <th style="text-align:center"></th>
+                        <th style="text-align:center">Progress</th>
+                        <th style="text-align:center"></th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+
+    <div id="card_job_detail" class="card card-dark" style="display:none">
+        <div class="card-header">
+            <span id="job_number_detail" class="card-title">
+                J21-0001
+            </span>
+            <div class="card-tools">
+                <button type="button" class="btn btn-dark btn-sm" data-card-widget="collapse">
+                    <i class="fas fa-minus"></i>
+                </button>
+                <button type="button" class="btn btn-dark btn-sm" data-card-widget="remove">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="form-row">
+                <label for="job_name">
+                    Job Name
+                </label>
+                <input id="job_name" class="form-control" type="text" />
+            </div>
+            <br />
+            <div class="form-row">
+                <label for="job_estimated_budget">
+                    Estimated Budget
+                </label>
+                <input id="job_estimated_budget" class="form-control" type="text" />
+            </div>
+            <br />
+            <table id="table_details" class="table table-sm table-hover" style="width:100%">
+                <thead>
+                    <tr>
+                        <th style="width:5%">Year</th>
+                        <th style="width:15%">Month</th>
+                        <th style="width:30%">Budget Spent</th>
+                        <th style="width:5%"></th>
+                        <th style="width:30%">Progress</th>
+                        <th style="width:5%"></th>
+                        <th style="width:10%"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @* Generate by JavaScript *@
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+<!-- Modal -->
+<div class="modal" id="ModalEditJobSpent" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Job Spent and Progress</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="form-group">
+                        <label>Year</label>
+                        <input class="form-control" value="2021" type="text" disabled />
+                    </div>
+                    <div class="form-group">
+                        <label>Month</label>
+                        <input class="form-control" value="JANUARY" type="text" disabled />
+                    </div>
+                    <hr />
+                    <label>Week 1</label>
+                    <div class="form-group row">
+                        <div class="col-4">
+                            <label class="col-form-label" for="labor_cost_w1">Labor Cost</label>
+                            <label class="col-form-label" for="ot_cost_w1">OT Cost</label>
+                            <label class="col-form-label" for="accommodation_cost_w1">Accommodation Cost</label>
+                            <label class="col-form-label" for="compensation_cost_w1">Compensation Cost</label>
+                            <label class="col-form-label" for="social_security_w1">Social Security</label>
+                        </div>
+                        <div class="col-7">
+                            <input id="labor_cost_w1" class="form-control" type="number" />
+                            <input id="ot_cost_w1" class="form-control" type="number" />
+                            <input id="accommodation_cost_w1" class="form-control" type="number" />
+                            <input id="compensation_cost_w1" class="form-control" type="number" />
+                            <input id="social_security_w1" class="form-control" type="number" />
+                        </div>
+                        <div class="col-1">
+                            <label class="col-form-label">BAHT</label>
+                            <label class="col-form-label">BAHT</label>
+                            <label class="col-form-label">BAHT</label>
+                            <label class="col-form-label">BAHT</label>
+                            <label class="col-form-label">BAHT</label>
+                        </div>
+                    </div>
+                    <hr />
+                    <label>Week 2</label>
+                    <div class="form-group row">
+                        <div class="col-4">
+                            <label class="col-form-label" for="labor_cost_w2">Labor Cost</label>
+                            <label class="col-form-label" for="ot_cost_w2">OT Cost</label>
+                            <label class="col-form-label" for="accommodation_cost_w2">Accommodation Cost</label>
+                            <label class="col-form-label" for="compensation_cost_w2">Compensation Cost</label>
+                            <label class="col-form-label" for="social_security_w2">Social Security</label>
+                        </div>
+                        <div class="col-7">
+                            <input id="labor_cost_w2" class="form-control" type="number" />
+                            <input id="ot_cost_w2" class="form-control" type="number" />
+                            <input id="accommodation_cost_w2" class="form-control" type="number" />
+                            <input id="compensation_cost_w2" class="form-control" type="number" />
+                            <input id="social_security_w2" class="form-control" type="number" />
+                        </div>
+                        <div class="col-1">
+                            <label class="col-form-label">BAHT</label>
+                            <label class="col-form-label">BAHT</label>
+                            <label class="col-form-label">BAHT</label>
+                            <label class="col-form-label">BAHT</label>
+                            <label class="col-form-label">BAHT</label>
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts
+{
+    <script type="text/javascript">
+        var table_jobs;
+        var table_details;
+        var table_progress;
+        var jobs = [];
+        var import_jobs = [];
+        var months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+        var week_time = [
+            "JAN 1", "JAN 2", "FEB 1", "FEB 2", "MAR 1", "MAR 2", "APR 1", "APR 2", "MAY 1", "MAY 2", "JUN 1", "JUN 2",
+            "JUL 1", "JUL 2", "AUG 1", "AUG 2", "SEP 1", "SEP 2", "OCT 1", "OCT 2", "NOV 1", "NOV 2", "DEC 1", "DEC 2"
+        ];
+
+        $(document).ready(function () {
+            GetData();
+            GenerateYearOptions();
+            GenerateMonthOptions();
+        })
+
+        function GenerateYearOptions() {
+            $('#select_progress_year').find('option').remove();
+            var str = '<option disabled selected>Please Select Year</option>';
+            var current_year = new Date();
+            for (var i = 0; i < 10; i++) {
+                var year = parseInt(current_year.getFullYear()) - i;
+                str += '<option value="' + year + '">' + year + '</option>';
+            }
+            $('#select_progress_year').append(str);
+        }
+
+        function GenerateMonthOptions() {
+            $('#select_progress_month').find('option').remove();
+            var str = '<option disabled selected>Please Select Month</option>';
+            for (var i = 0; i < months.length; i++) {
+                str += '<option value="' + months[i] + '">' + months[i] + '</option>';
+            }
+            $('#select_progress_month').append(str);
+        }
+
+        $('#select_progress_year').on('change', function () {
+            if ($('#select_progress_year').val() != null && $('#select_progress_month').val() != null) {
+                $('#div_file').css('display', 'block');
+            }
+            else {
+                $('#div_file').css('display', 'none');
+            }
+        });
+
+        $('#select_progress_month').on('change', function () {
+            if ($('#select_progress_year').val() != null && $('#select_progress_month').val() != null) {
+                $('#div_file').css('display', 'block');
+            }
+            else {
+                $('#div_file').css('display', 'none');
+            }
+        });
+
+        async function GetData() {
+            await $.ajax({
+                type: "GET",
+                url: '@Url.Action("GetData", "ImportProgress")',
+	            contentType: 'application/x-www-form-urlencoded',
+                data: {
+
+                },
+                success: function (response) {
+                    //console.log("Response");
+                    //console.log(response);
+                    jobs = response;
+                    GenJobsTable();
+                }
+            });
+        }
+
+        function GenJobsTable() {
+            var datas = [];
+            var last_index;
+            @*console.log("Total Job: " + jobs.length);*@
+            for (var i = 0; i < jobs.length; i++) {
+                last_index = jobs[i].length - 1;
+                var jn = jobs[i][last_index].job_number.trim() != "" ? jobs[i][last_index].job_number : jobs[i][last_index].job_id;
+                datas.push([
+                    jn,
+                    jobs[i][last_index].job_name,
+                    jobs[i][last_index].estimated_budget.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","),
+                    jobs[i][last_index].remainning_cost,
+                    jobs[i][last_index].remainning_cost / jobs[i][last_index].estimated_budget * 100,
+                    jobs[i][last_index].job_progress,
+                    jobs[i][last_index].job_progress,
+                ]);
+            }
+
+            if (table_jobs != null)
+                $('#table_jobs').DataTable().destroy();
+
+            table_jobs = $('#table_jobs').DataTable({
+                data: datas,
+                pagingType: "full_numbers",
+                columnDefs: [
+                    {
+                        targets: [4, 6],
+                        orderable: false,
+                        searchable: false
+                    },
+                ],
+                rowCallback: function (row, data) {
+
+                    $('td', row).eq(2).css("text-align", "center");
+                    $('td', row).eq(3).css("text-align", "center");
+                    $('td', row).eq(4).css("text-align", "center");
+                    $('td', row).eq(5).css("text-align", "center");
+                    $('td', row).eq(6).css("text-align", "center");
+
+                    var remain_str = '<div class="progress progress-xs progress-striped active">';
+                    remain_str += '<div class="progress-bar bg-primary" style="width: ' + Math.round(data[4]) + '%"></div></div>';
+                    $('td', row).eq(3).html(remain_str);
+                    var remain_percent_str = '<span class="badge bg-primary">' + Math.round(data[4]) + '%</span>';
+                    $('td', row).eq(4).html(remain_percent_str);
+                    var progress_str = '<div class="progress progress-xs progress-striped active">';
+                    progress_str += '<div class="progress-bar bg-primary" style="width: ' + Math.round(data[5]) + '%"></div></div>';
+                    $('td', row).eq(5).html(progress_str);
+                    var progress_percent_str = '<span class="badge bg-primary">' + Math.round(data[6]) + '%</span>';
+                    $('td', row).eq(6).html(progress_percent_str);
+
+                }
+            });
+
+            $('#table_jobs tbody').on('click', 'tr', function () {
+                GenJobsDetail(table_jobs.row(this).data()[0]);
+            });
+        }
+
+        function GenJobsDetail(job_id) {
+            var index = -1;
+            for (var i = 0; i < jobs.length; i++) {
+                if (jobs[i][0].job_number == job_id)
+                    index = i;
+            }
+
+            if (index > -1) {
+                //console.log(jobs[index]);
+                var card = document.getElementById("card_job_detail");
+                card.style.display = "block";
+                $('#job_number_detail').text("Job Number: " + jobs[index][0].job_number);
+                $('#job_name').val(jobs[index][0].job_name);
+                $('#job_estimated_budget').val(jobs[index][0].estimated_budget);
+            }
+
+            if(table_details != null)
+                $('#table_details').DataTable().destroy();
+
+            var datas = [];
+            for (var i = 0; i < jobs[index].length; i++) {
+                datas.push([
+                    jobs[index][i].year,
+                    months[jobs[index][i].month - 1],
+                    jobs[index][i].spent_cost,
+                    jobs[index][i].spent_cost / jobs[index][i].estimated_budget * 100,
+                    jobs[index][i].job_progress,
+                    jobs[index][i].job_progress,
+                    0
+                ]);
+            }
+
+            table_details = $('#table_details').DataTable({
+                data: datas,
+                pagingType: "full_numbers",
+                columnDefs: [
+                    {
+                        targets: [3, 5, 6],
+                        orderable: false,
+                        searchable: false
+                    },
+                ],
+                rowCallback: function (row, data) {
+                    $('td', row).eq(0).css("text-align", "center");
+                    $('td', row).eq(1).css("text-align", "center");
+                    $('td', row).eq(2).css("text-align", "center");
+                    $('td', row).eq(3).css("text-align", "center");
+                    $('td', row).eq(4).css("text-align", "center");
+                    $('td', row).eq(5).css("text-align", "center");
+                    $('td', row).eq(6).css("text-align", "center");
+
+                    var budget_spent_str = '<div class="progress progress-xs progress-striped active">';
+                    budget_spent_str += '<div class="progress-bar bg-primary" style="width: ' + Math.round(data[3]) + '%"></div></div>';
+                    $('td', row).eq(2).html(budget_spent_str);
+                    var spent_percent_str = '<span class="badge bg-primary">' + Math.round(data[3]) + '%</span>';
+                    $('td', row).eq(3).html(spent_percent_str);
+                    var progress_str = '<div class="progress progress-xs progress-striped active">';
+                    progress_str += '<div class="progress-bar bg-primary" style="width: ' + Math.round(data[5]) + '%"></div></div>';
+                    $('td', row).eq(4).html(progress_str);
+                    var progress_percent_str = '<span class="badge bg-primary">' + Math.round(data[5]) + '%</span>';
+                    $('td', row).eq(5).html(progress_percent_str);
+
+                    $('td', row).eq(6).html('<button class="btn btn-primary form-control">Edit</button>');
+                }
+            });
+        }
+
+        $('#import_file').on('change', async function () {
+            var fileExtension = ['xls', 'xlsx'];
+            var filename = $('#import_file').val();
+
+            if (filename.length == 0) {
+                alert("Please Select a File");
+            }
+            else {
+                var extension = filename.replace(/^.*\./, '');
+                if ($.inArray(extension, fileExtension) == -1) {
+                    alert("Please select only excel files.");
+                }
+            }
+
+            var fdata = new FormData();
+            var fileupload = $('#import_file').get(0);
+            var files = fileupload.files;
+            var y = $('#select_progress_year').val();
+            var m = $('#select_progress_month').val();
+
+            fdata.append(files[0].name, files[0]);
+            $('#import_file_label').text(files[0].name);
+
+            await $.ajax({
+                type: "POST",
+                url: '@Url.Action("SetJobDetails", "ImportProgress")',
+	            contentType: 'application/x-www-form-urlencoded',
+                data: { y, m },
+            });
+
+            await $.ajax({
+                type: "POST",
+                url: "ImportProgress/Import",
+                beforeSend: function (xhr) {
+                    xhr.setRequestHeader("XSRF-TOKEN",
+                        $('input:hidden[name="__RequestVerificationToken"]').val());
+                },
+                data: fdata,
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    if (response.length == 0)
+                        alert('Some error occured while uploading');
+                    else {
+                        //console.log("Response");
+                        //console.log(response);
+                        import_jobs = response;
+                        GenUploadData();
+                    }
+                },
+            });
+        });
+
+        function GenUploadData() {
+            var mm = [" ", "JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+            var full_mm = [" ", "JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"];
+            $('#card_upload').show();
+            $('#year').val(import_jobs[0].year);
+            $('#week_time').val(mm[import_jobs[0].month]);
+
+            var datas = [];
+            for (var i = 0; i < import_jobs.length; i++) {
+                datas.push([
+                    import_jobs[i].job_id,
+                    import_jobs[i].estimated_budget,
+                    import_jobs[i].job_progress
+                ]);
+            }
+
+            if (table_progress != null)
+                $('#table_progress').DataTable().destroy();
+
+            table_progress = $('#table_progress').DataTable({
+                data: datas,
+                pagingType: "full_numbers",
+                lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
+            });
+        }
+
+        $('#btn_confirm_import').on('click', function () {
+            ConfirmImport();
+        });
+
+        function ConfirmImport() {
+            $('#btn_confirm_import').attr('disabled', true);
+            //$('#modal_upload').modal("show");
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("ConfirmImport", "ImportProgress")',
+	            contentType: 'application/x-www-form-urlencoded',
+                data: {
+
+                },
+                success: function (response) {
+
+                }
+            })
+        }
+
+        @*$('#table_details tbody').on('click', 'tr', function () {
+            $('#ModalEditJobSpent').modal("show");
+            var tt = $('#table_details').DataTable();
+            console.log(tt.row(this).data());
+        });*@
+
+    </script>
+}
